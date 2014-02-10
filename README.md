@@ -17,3 +17,9 @@ $('#formid').rusure('trigger', function() {
   console.log('Unload callback method called if user leaves page');
 });
 ```
+
+Override default message
+
+```javascript
+$.fn.rusure.default.message = 'A new default message';
+```
