@@ -88,4 +88,6 @@
             }
         });
     }
+
+    $.fn.rusure.defaults = defaults;
 })(jQuery);
