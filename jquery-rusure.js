@@ -6,7 +6,7 @@
     },
 
     methods = {
-        trigger: function (unloadCallback) {
+        trigger: function (unloadCallback, state) {
             if (!unloadCallback) {
                 throw 'unloadCallback not defined';
             }
@@ -14,11 +14,12 @@
             var $body = $('body'),
                 $this = $(this),
                 $iframe = $body.find('iframe.rusure-iframe'),
-                state = $this.data('rusure-state'),
                 unloadCallbackProxy = $.proxy(function () {
                     unloadCallback.apply(this);
                     $body.find('iframe.rusure-iframe').remove();
                 }, this);
+
+            state = $.extend($this.data('rusure-state'), state);
 
             if ($this.serialize() !== state.initial) {
                 if ($iframe.length === 0) {
@@ -32,19 +33,29 @@
                     });
 
                     $iframe.one('load', function () {
-                        var win = $(this.contentWindow);
-                        win.on('beforeunload', state.beforeUnloadHandler);
-                        win.on('unload', unloadCallbackProxy);
+                        var win = this.contentWindow,
+                            $win = $(this.contentWindow);
+                        $win.on('beforeunload', state.beforeUnloadHandler);
+                        $win.on('unload', unloadCallbackProxy);
+                        win.location.reload();
                     });
 
                     $body.append($iframe);
+                } else {
+                    $iframe[0].contentWindow.location.reload();
                 }
-
-                $iframe.attr('src', 'javascript:void(0)');
 
             } else {
                 unloadCallbackProxy.apply();
             }
+        },
+        updatestate: function (newState) {
+            var $this = $(this),
+                state = $this.data('rusure-state');
+
+            state.initial = $this.serialize();
+
+            $.extend(state, newState);
         }
     };
 
@@ -81,7 +92,9 @@
                 $this.data('rusure-state', state);
 
                 $this.on('submit', function (e) {
-                    state.submitted = true;
+                    if (!e.isDefaultPrevented()) {
+                        state.submitted = true;
+                    }
                 });
 
                 $(window).on('beforeunload', state.beforeUnloadHandler);
