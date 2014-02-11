@@ -19,7 +19,7 @@
                 }, this);
 
             function navigateAway(win) {
-                win.location = "";
+                win.location = "about:blank";
             }
 
             state = $.extend($this.data('rusure-state'), state);
