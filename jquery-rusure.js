@@ -11,12 +11,11 @@
                 throw 'unloadCallback not defined';
             }
 
-            var $body = $('body'),
-                $this = $(this),
-                $iframe = $body.find('iframe.rusure-iframe'),
+            var $this = $(this),
+                $iframe = $('iframe.rusure-iframe'),
                 unloadCallbackProxy = $.proxy(function () {
                     unloadCallback.apply(this);
-                    $body.find('iframe.rusure-iframe').remove();
+                    $('iframe.rusure-iframe').remove();
                 }, this);
 
             function navigateAway(win) {
@@ -26,8 +25,6 @@
             state = $.extend($this.data('rusure-state'), state);
 
             if ($this.serialize() !== state.initial) {
-                
-
                 if ($iframe.length === 0) {
                     $iframe = $('<iframe class="rusure-iframe" />');
 
@@ -46,7 +43,7 @@
                         navigateAway(win);
                     });
 
-                    $body.append($iframe);
+                    $('body').append($iframe);
                 } else {
                     navigateAway($iframe[0].contentWindow);
                 }
@@ -103,7 +100,12 @@
                     }
                 });
 
-                $(window).on('beforeunload', state.beforeUnloadHandler);
+                $(window).on('beforeunload', function (e) {
+                    $('iframe.rusure-iframe').each(function () {
+                        $(this.contentWindow).off();
+                    });
+                    return state.beforeUnloadHandler.apply(this, arguments);
+                });
             }
         });
     }
