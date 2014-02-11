@@ -19,9 +19,15 @@
                     $body.find('iframe.rusure-iframe').remove();
                 }, this);
 
+            function navigateAway(win) {
+                win.location = "";
+            }
+
             state = $.extend($this.data('rusure-state'), state);
 
             if ($this.serialize() !== state.initial) {
+                
+
                 if ($iframe.length === 0) {
                     $iframe = $('<iframe class="rusure-iframe" />');
 
@@ -37,12 +43,12 @@
                             $win = $(this.contentWindow);
                         $win.on('beforeunload', state.beforeUnloadHandler);
                         $win.on('unload', unloadCallbackProxy);
-                        win.location.reload();
+                        navigateAway(win);
                     });
 
                     $body.append($iframe);
                 } else {
-                    $iframe[0].contentWindow.location.reload();
+                    navigateAway($iframe[0].contentWindow);
                 }
 
             } else {
